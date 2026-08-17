@@ -1,0 +1,137 @@
+1. КРАТКАЯ ИДЕЯ ПРОДУКТА
+========================
+TraceForge — Windows desktop-инструмент диагностики приложений.
+Цель: мониторить процессы и ресурсы, фиксировать события до crash/hang, собирать диагностические артефакты и формировать понятные отчеты.
+Проект должен показывать компаниям практические навыки C#, C++, Windows internals, архитектуры, тестирования и продуктовой упаковки.
+
+2. ПОЧЕМУ ПРОЕКТ СИЛЬНЫЙ ДЛЯ ПОРТФОЛИО
+======================================
+- Системное программирование: Win32, процессы, память, DLL, сеть, crash dumps.
+- Современный C# desktop: WinUI 3, MVVM, async, SQLite.
+- Смешанная C# + C++ архитектура через IPC.
+- Тесты, CI, performance engineering, релизы.
+- Реальный developer tool вместо учебного CRUD-приложения.
+
+4. ЗАФИКСИРОВАННЫЕ АРХИТЕКТУРНЫЕ РЕШЕНИЯ
+========================================
+- Основная IDE: Visual Studio. Проект ведется как единое решение TraceForge.sln.
+- UI: C# + WinUI 3 / Windows App SDK.
+- Low-level core: Отдельный TraceForge.Agent.exe на C++20.
+- IPC: Named Pipes. Формат сообщений на первом этапе — versioned UTF-8 JSON.
+- Хранилище: SQLite для sessions, samples, incidents и settings.
+- Windows APIs: Win32, Toolhelp32/PSAPI, PDH/process times, IP Helper, Event Log, DbgHelp/MiniDump.
+- AI: С версии v0.5. Через абстракцию provider, с privacy controls и только на основе структурированных диагностических фактов.
+- Платформа: Windows-first. Не распыляться на macOS/Linux до стабильного v1.0.
+
+5. ПРЕДЛАГАЕМАЯ СТРУКТУРА РЕШЕНИЯ
+TraceForge/
+├─ TraceForge.sln
+├─ src/
+│  ├─ TraceForge.App/          # C# WinUI 3 UI
+│  ├─ TraceForge.Application/  # C# use cases / orchestration
+│  ├─ TraceForge.Data/         # C# SQLite repositories
+│  └─ TraceForge.Agent/        # C++20 collectors / incident engine
+├─ contracts/                  # IPC schema / protocol docs
+├─ tests/
+│  ├─ TraceForge.App.Tests/
+│  └─ TraceForge.Agent.Tests/
+├─ docs/                       # architecture, build, release docs
+├─ assets/                     # logo, screenshots, demo media
+└─ scripts/                    # build/release utilities
+
+6. КАК ПРОГРАММА РАБОТАЕТ
+=========================
+1. Пользователь открывает TraceForge.App и выбирает уже работающий процесс или запускает целевое приложение из TraceForge.
+2. C# Application Layer отправляет команду TraceForge.Agent через Named Pipes.
+3. C++ Agent обращается к Windows API и собирает процессы, CPU, RAM, threads, modules, network и другие системные данные.
+4. Agent отправляет метрики и события в UI; данные нужной детализации сохраняются в SQLite.
+5. Black Box хранит rolling-окно последних 30–60 секунд критичных событий. При crash/hang окно фиксируется как incident snapshot.
+6. Crash pipeline добавляет Event Log / MiniDump / faulting module и другие доступные артефакты.
+7. Report Builder формирует JSON + HTML отчет; пользователь может сохранить отчет и .dmp.
+8. Начиная с v0.5 AI Diagnostics получает структурированный контекст отчета и отвечает на вопросы, не подменяя первичные факты.
+
+8. ПЛАН ВЕРСИЙ
+==============
+v0.1 — Core Monitoring Foundation
+  - Создать TraceForge.sln, C# WinUI 3 shell и C++ Agent.
+  - Настроить Named Pipes и простой JSON protocol.
+  - Получить список процессов Windows.
+  - Realtime CPU/RAM monitoring.
+  - Process Details и графики.
+  - SQLite sessions/samples.
+  - Базовые тесты и Windows CI.
+  - Done: решение стабильно собирается и мониторит реальные процессы без зависания UI.
+v0.2 — Process Inspector
+  - Process tree, threads, loaded modules/DLL.
+  - Handles/open files там, где это безопасно и доступно.
+  - TCP/UDP connections per process.
+  - Поиск, фильтры, корректная обработка Access Denied.
+  - Экспорт snapshot в JSON.
+  - Done: TraceForge становится полезным process inspector.
+v0.3 — Crash Diagnostics
+  - Abnormal exit detection.
+  - Windows Event Log / WER correlation.
+  - MiniDump capture в контролируемых сценариях.
+  - Exception code, faulting module, symbols/PDB когда доступны.
+  - JSON + HTML diagnostic report.
+  - Retention policy для dumps/logs.
+  - Done: тестовый crash приводит к воспроизводимому отчету и набору артефактов.
+v0.4 — Black Box
+  - Ring buffer последних 30–60 секунд.
+  - Unified event timeline.
+  - Hang detection.
+  - Rule-based anomalies: memory spike, CPU saturation, thread explosion и др.
+  - Freeze incident snapshot при crash/hang.
+  - Overhead benchmark самого TraceForge.
+  - Done: можно увидеть последовательность событий непосредственно до инцидента.
+v0.5 — AI Diagnostics
+  - Diagnostic Context Builder.
+  - Provider abstraction для remote/local моделей.
+  - Ask TraceForge: «Почему упало?», «Что тормозит?», «Что изменилось?»
+  - Grounded explanation с опорой на evidence.
+  - Compare sessions/builds.
+  - Privacy controls и preview отправляемого контекста.
+  - Done: AI не фантазирует вместо фактов и работает поверх диагностического отчета.
+v1.0 — Product & Developer Tool
+  - Launch & monitor target application.
+  - Startup profiling и performance budgets.
+  - Installer и безопасная стратегия обновления.
+  - Settings, internal diagnostics, documentation, CONTRIBUTING.
+  - Compatibility matrix и security/privacy review.
+  - Public GitHub Release, demo video, screenshots, benchmark и landing page.
+  - Done: TraceForge можно установить и реально использовать как публичный продукт.
+
+9. ПРАВИЛА РАЗРАБОТКИ ДЛЯ БУДУЩИХ ЧАТОВ
+=======================================
+- Разрабатывать небольшими работающими шагами. После каждого шага solution должен снова собираться.
+- Не внедрять AI раньше v0.5 и не использовать AI как замену первичным системным данным.
+- Low-level Windows logic держать в C++ Agent; UI, orchestration и presentation — в C#.
+- Не связывать C# и C++ через сложный in-process interop без необходимости. Базовый контракт — отдельные процессы + Named Pipes.
+- Каждое изменение должно иметь Task ID из Roadmap и понятный Definition of Done.
+- После завершения задачи обновлять Excel: Status, Notes, при необходимости Dev Log.
+- Ошибки доступа к чужим/системным процессам не должны ронять TraceForge. Показывать понятный статус и продолжать работу.
+- Performance overhead является продуктовой метрикой. Сложные collectors добавлять только после измерения.
+- Публичный репозиторий поддерживать как продукт: README, screenshots, architecture docs, releases, tests и CI.
+- Перед крупным архитектурным изменением сначала объяснить, зачем оно нужно и какую текущую проблему решает.
+- Windows-first до v1.0. Не тратить время на кроссплатформенность на ранних версиях.
+- В будущих чатах начинать с текущего Task ID и последней записи Dev Log, а не перепроектировать TraceForge с нуля.
+
+11. ТЕКУЩЕЕ СОСТОЯНИЕ НА 14.08.2026
+===================================
+- Название проекта: TraceForge.
+- Направление: Windows Application Diagnostics Platform.
+- Выбран стек C# + C++.
+- Основная IDE: Visual Studio.
+- По предоставленному скриншоту установлены ключевые workloads: «Разработка классических приложений .NET», «Разработка классических приложений на C++» и «Разработка приложений WinUI».
+- ASP.NET, Python и Node.js также установлены, но для TraceForge v0.1 они не обязательны.
+- Разработка исходного кода TraceForge еще не начата.
+- TF-001 (подготовка Visual Studio) отмечен как готовый. Следующий инженерный шаг: TF-002/TF-003 — репозиторий и создание TraceForge.sln.
+
+12. СЛЕДУЮЩИЙ ШАГ
+=================
+1. Создать/подтвердить GitHub-репозиторий TraceForge.
+2. В Visual Studio создать пустое решение TraceForge.sln.
+3. Создать C# WinUI 3 проект TraceForge.App.
+4. Создать C++ проект TraceForge.Agent.
+5. Настроить общую структуру папок и первый build.
+6. Только после успешной сборки перейти к Named Pipes ping/pong.
