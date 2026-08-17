@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "TraceForge.App (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "TraceForge.App (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
