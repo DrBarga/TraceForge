@@ -139,7 +139,15 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AgentApplication.cpp" />
+    <ClCompile Include="ProcessEnumerator.cpp" />
     <ClCompile Include="TraceForge.Agent.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AgentApplication.h" />
+    <ClInclude Include="ExitCode.h" />
+    <ClInclude Include="ProcessEnumerator.h" />
+    <ClInclude Include="ProcessInfo.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
