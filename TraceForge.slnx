@@ -5,11 +5,16 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/src/">
+    <Project Path="src/TraceForge.Agent/TraceForge.Agent.vcxproj" Id="14ae4e45-1101-46e8-8880-a266a42f95ad">
+      <Platform Solution="*|ARM64" Project="x64" />
+    </Project>
     <Project Path="src/TraceForge.App/TraceForge.App.csproj">
       <Platform Solution="*|ARM64" Project="ARM64" />
       <Platform Solution="*|x64" Project="x64" />
       <Platform Solution="*|x86" Project="x86" />
       <Deploy />
     </Project>
+    <Project Path="src/TraceForge.Application/TraceForge.Application.csproj" Id="761d0b93-396b-46e1-8f6a-a059b9430631" />
+    <Project Path="src/TraceForge.Data/TraceForge.Data.csproj" Id="4a10a670-ccfb-4a60-ae20-fad5c06e6a58" />
   </Folder>
 </Solution>
