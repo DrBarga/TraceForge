@@ -36,7 +36,7 @@ $checksumPath = "$archivePath.sha256"
 
 Push-Location $repositoryRoot
 try {
-    & $msbuild $solution /restore /m "/p:Configuration=$Configuration" /p:Platform=x64 /v:minimal
+    & $msbuild $solution /t:Rebuild /restore /m "/p:Configuration=$Configuration" /p:Platform=x64 /v:minimal
     if ($LASTEXITCODE -ne 0) {
         throw "Solution build failed with exit code $LASTEXITCODE."
     }
