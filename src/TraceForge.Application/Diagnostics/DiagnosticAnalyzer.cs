@@ -12,7 +12,7 @@ public sealed class DiagnosticAnalyzer
         var anomalies = new List<DiagnosticAnomaly>();
 
         foreach (var process in snapshot.Processes
-                     .Where(process => process.CpuPercent >= HighCpuThreshold)
+                     .Where(process => process.CpuAvailable && process.CpuPercent >= HighCpuThreshold)
                      .OrderByDescending(process => process.CpuPercent)
                      .Take(5))
         {
@@ -25,7 +25,7 @@ public sealed class DiagnosticAnalyzer
         }
 
         foreach (var process in snapshot.Processes
-                     .Where(process => process.WorkingSetBytes >= HighMemoryThreshold)
+                     .Where(process => process.MemoryAvailable && process.WorkingSetBytes >= HighMemoryThreshold)
                      .OrderByDescending(process => process.WorkingSetBytes)
                      .Take(5))
         {

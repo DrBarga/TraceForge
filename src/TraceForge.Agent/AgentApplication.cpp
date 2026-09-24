@@ -3,9 +3,9 @@
 
 namespace traceforge::agent
 {
-    ExitCode AgentApplication::Run() const
+    ExitCode AgentApplication::Run(std::wstring_view pipeName) const
     {
-        NamedPipeServer server;
+        NamedPipeServer server{std::wstring(pipeName)};
         server.Run();
         return ExitCode::Success;
     }

@@ -35,24 +35,28 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <TextBox x:Name="SearchBox" PlaceholderText="Search process, PID or path" TextChanged="SearchBox_TextChanged" />
+            <TextBox x:Name="SearchBox" PlaceholderText="Search process, PID or path" TextChanged="SearchBox_TextChanged" VerticalAlignment="Center" />
             <Button Grid.Column="1" Content="Refresh" Click="RefreshButton_Click" />
             <ToggleSwitch x:Name="LiveToggle" Grid.Column="2" Header="Live" IsOn="True" Toggled="LiveToggle_Toggled" />
             <Button Grid.Column="3" Content="Export report" Click="ExportReportButton_Click" />
-            <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="16" HorizontalAlignment="Right" VerticalAlignment="Center">
+            <Button Grid.Column="4" Content="History" Click="HistoryButton_Click" />
+            <StackPanel Grid.Column="5" Orientation="Horizontal" Spacing="16" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <TextBlock Text="Processes" Opacity="0.6" />
                 <TextBlock Text="{x:Bind ViewModel.ProcessCount, Mode=OneWay}" FontWeight="SemiBold" />
                 <TextBlock Text="Anomalies" Opacity="0.6" />
                 <TextBlock Text="{x:Bind ViewModel.AnomalyCount, Mode=OneWay}" FontWeight="SemiBold" />
+                <TextBlock Text="Limited" Opacity="0.6" />
+                <TextBlock Text="{x:Bind ViewModel.LimitedProcessCount, Mode=OneWay}" FontWeight="SemiBold" />
             </StackPanel>
         </Grid>
 
         <Grid Grid.Row="2" Padding="20,0,20,16" ColumnSpacing="16">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2.4*" />
-                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="1.2*" />
             </Grid.ColumnDefinitions>
 
             <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
@@ -64,10 +68,10 @@
                     <Grid Margin="8,0,8,8" ColumnSpacing="8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="70" />
-                            <ColumnDefinition Width="220" />
-                            <ColumnDefinition Width="90" />
-                            <ColumnDefinition Width="110" />
-                            <ColumnDefinition Width="80" />
+                            <ColumnDefinition Width="190" />
+                            <ColumnDefinition Width="65" />
+                            <ColumnDefinition Width="85" />
+                            <ColumnDefinition Width="65" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="PID" FontWeight="SemiBold" />
@@ -87,18 +91,18 @@
                                 <Grid Padding="8,6" ColumnSpacing="8">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="70" />
-                                        <ColumnDefinition Width="220" />
-                                        <ColumnDefinition Width="90" />
-                                        <ColumnDefinition Width="110" />
-                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="190" />
+                                        <ColumnDefinition Width="65" />
+                                        <ColumnDefinition Width="85" />
+                                        <ColumnDefinition Width="65" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{x:Bind Pid}" />
-                                    <TextBlock Grid.Column="1" Text="{x:Bind Name}" TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Grid.Column="2" Text="{x:Bind Cpu}" />
-                                    <TextBlock Grid.Column="3" Text="{x:Bind Memory}" />
-                                    <TextBlock Grid.Column="4" Text="{x:Bind Threads}" />
-                                    <TextBlock Grid.Column="5" Text="{x:Bind Path}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{x:Bind Pid, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="1" Text="{x:Bind Name, Mode=OneWay}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="2" Text="{x:Bind Cpu, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="3" Text="{x:Bind Memory, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="4" Text="{x:Bind Threads, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="5" Text="{x:Bind Path, Mode=OneWay}" TextTrimming="CharacterEllipsis" />
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
@@ -107,9 +111,14 @@
             </Border>
 
             <Border Grid.Column="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="12">
                     <TextBlock Text="Process details" FontSize="20" FontWeight="SemiBold" />
                     <TextBlock Text="{x:Bind ViewModel.SelectedName, Mode=OneWay}" FontSize="18" TextWrapping="Wrap" />
+                    <Button
+                        Content="Launch and watch an application"
+                        HorizontalAlignment="Stretch"
+                        Click="LaunchTargetButton_Click" />
                     <Grid ColumnSpacing="12" RowSpacing="8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="100" />
@@ -121,21 +130,66 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <TextBlock Text="PID" Opacity="0.6" />
                         <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.SelectedPid, Mode=OneWay}" />
                         <TextBlock Grid.Row="1" Text="CPU" Opacity="0.6" />
                         <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Bind ViewModel.SelectedCpu, Mode=OneWay}" />
-                        <TextBlock Grid.Row="2" Text="Memory" Opacity="0.6" />
-                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{x:Bind ViewModel.SelectedMemory, Mode=OneWay}" />
-                        <TextBlock Grid.Row="3" Text="Threads" Opacity="0.6" />
-                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{x:Bind ViewModel.SelectedThreads, Mode=OneWay}" />
-                        <TextBlock Grid.Row="4" Text="Access" Opacity="0.6" />
-                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{x:Bind ViewModel.SelectedAccess, Mode=OneWay}" />
+                        <TextBlock Grid.Row="2" Text="Parent PID" Opacity="0.6" />
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{x:Bind ViewModel.SelectedParentPid, Mode=OneWay}" />
+                        <TextBlock Grid.Row="3" Text="Memory" Opacity="0.6" />
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{x:Bind ViewModel.SelectedMemory, Mode=OneWay}" />
+                        <TextBlock Grid.Row="4" Text="Threads" Opacity="0.6" />
+                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{x:Bind ViewModel.SelectedThreads, Mode=OneWay}" />
+                        <TextBlock Grid.Row="5" Text="Access" Opacity="0.6" />
+                        <TextBlock Grid.Row="5" Grid.Column="1" Text="{x:Bind ViewModel.SelectedAccess, Mode=OneWay}" />
+                        <TextBlock Grid.Row="6" Text="Children" Opacity="0.6" />
+                        <TextBlock Grid.Row="6" Grid.Column="1" Text="{x:Bind ViewModel.SelectedChildCount, Mode=OneWay}" />
+                        <TextBlock Grid.Row="7" Text="Started" Opacity="0.6" />
+                        <TextBlock Grid.Row="7" Grid.Column="1" Text="{x:Bind ViewModel.SelectedStartTime, Mode=OneWay}" />
                     </Grid>
                     <TextBlock Text="Executable path" Opacity="0.6" Margin="0,8,0,0" />
                     <TextBox Text="{x:Bind ViewModel.SelectedPath, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" />
+                    <Button
+                        Content="Inspect threads, modules and network"
+                        HorizontalAlignment="Stretch"
+                        IsEnabled="{x:Bind ViewModel.HasSelectedProcess, Mode=OneWay}"
+                        Click="InspectProcessButton_Click" />
+                    <TextBlock Text="{x:Bind ViewModel.InspectionSummary, Mode=OneWay}" TextWrapping="Wrap" />
+                    <TextBlock Text="{x:Bind ViewModel.InspectionWarnings, Mode=OneWay}" TextWrapping="Wrap" Opacity="0.7" />
+                    <Expander Header="Threads" IsExpanded="False">
+                        <ListView ItemsSource="{x:Bind ViewModel.ThreadRows, Mode=OneWay}" MaxHeight="220" />
+                    </Expander>
+                    <Expander Header="Loaded modules" IsExpanded="False">
+                        <ListView ItemsSource="{x:Bind ViewModel.ModuleRows, Mode=OneWay}" MaxHeight="260" />
+                    </Expander>
+                    <Expander Header="TCP and UDP endpoints" IsExpanded="False">
+                        <ListView ItemsSource="{x:Bind ViewModel.ConnectionRows, Mode=OneWay}" MaxHeight="260" />
+                    </Expander>
+                    <Button
+                        Content="Capture MiniDump"
+                        HorizontalAlignment="Stretch"
+                        IsEnabled="{x:Bind ViewModel.HasSelectedProcess, Mode=OneWay}"
+                        Click="CaptureDumpButton_Click" />
+                    <Button
+                        Content="Watch selected process"
+                        HorizontalAlignment="Stretch"
+                        IsEnabled="{x:Bind ViewModel.HasSelectedProcess, Mode=OneWay}"
+                        Click="WatchProcessButton_Click" />
+                    <Button
+                        Content="Stop watching"
+                        HorizontalAlignment="Stretch"
+                        IsEnabled="{x:Bind ViewModel.IsWatching, Mode=OneWay}"
+                        Click="StopWatchingButton_Click" />
+                    <TextBlock Text="Process watch" FontWeight="SemiBold" Margin="0,12,0,0" />
+                    <TextBlock Text="{x:Bind ViewModel.WatchedProcessStatus, Mode=OneWay}" TextWrapping="Wrap" />
+                    <TextBlock Text="Latest exit" FontWeight="SemiBold" Margin="0,8,0,0" />
+                    <TextBlock Text="{x:Bind ViewModel.LastIncidentSummary, Mode=OneWay}" TextWrapping="Wrap" />
                 </StackPanel>
+                </ScrollViewer>
             </Border>
         </Grid>
 

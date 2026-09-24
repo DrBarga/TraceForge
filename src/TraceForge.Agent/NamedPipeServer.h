@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ProcessEnumerator.h"
+#include "ProcessWatcher.h"
 
 #include <Windows.h>
 #include <string>
@@ -10,6 +11,7 @@ namespace traceforge::agent
     class NamedPipeServer final
     {
     public:
+        explicit NamedPipeServer(std::wstring pipeName = L"TraceForge.Agent.v1");
         void Run();
 
     private:
@@ -18,5 +20,7 @@ namespace traceforge::agent
         void ServeClient(HANDLE pipe, bool& keepRunning);
 
         ProcessEnumerator processEnumerator_;
+        ProcessWatcher processWatcher_;
+        std::wstring pipePath_;
     };
 }

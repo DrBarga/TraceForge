@@ -13,3 +13,6 @@ artifacts/
 AppPackages/
 *.pfx
 *.cer
+*.tmp
+.codex-*/
+/artifacts/

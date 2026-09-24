@@ -1,0 +1,67 @@
+name: Windows CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: windows-2025-vs2026
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [Debug, Release]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Locate MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restore and build
+        shell: pwsh
+        run: >-
+          msbuild TraceForge.slnx
+          /restore
+          /m
+          /p:Configuration=${{ matrix.configuration }}
+          /p:Platform=x64
+          /p:CI=true
+
+      - name: Run tests
+        shell: pwsh
+        run: >-
+          dotnet test tests/TraceForge.Application.Tests/TraceForge.Application.Tests.csproj
+          --configuration ${{ matrix.configuration }}
+          --no-restore
+          --no-build
+          --logger "trx;LogFileName=traceforge-${{ matrix.configuration }}.trx"
+
+      - name: Verify packaged agent
+        shell: pwsh
+        run: |
+          $agent = Get-ChildItem src/TraceForge.App/bin/x64/${{ matrix.configuration }} -Recurse -Filter TraceForge.Agent.exe | Select-Object -First 1
+          if (-not $agent) { throw 'TraceForge.Agent.exe was not copied to the application output.' }
+          Write-Host "Agent: $($agent.FullName)"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.configuration }}
+          path: tests/TraceForge.Application.Tests/TestResults/*.trx
+          if-no-files-found: ignore

@@ -1,51 +1,24 @@
-# v1.0 RC1 scope matrix
+# TraceForge 1.0.0 scope
 
-This release candidate is intended to get TraceForge to its first integrated Windows launch, not to silently mark every stretch item from the original long-term roadmap as finished.
+TraceForge 1.0.0 is a portable Windows x64 diagnostics application. It is intended for developers and support engineers who need a fast view of a local process, its resource use, and its exit context without sending telemetry to a service.
 
-## Implemented in RC1
+## Included
 
-- C# WinUI 3 desktop shell
-- C++20 native Agent
-- Named Pipe IPC
-- UTF-8 JSON request/response protocol
-- Process enumeration
-- PID, name and full executable path
-- CPU sampling
-- Working set memory sampling
-- Thread count
-- Protected/inaccessible process handling
-- Live process search
-- Selected-process details
-- Local SQLite session storage
-- Rule-based CPU/memory anomalies
-- 60-second Black Box snapshot buffer
-- JSON diagnostic report export
-- x64 Debug/Release configuration
-- GitHub Actions build workflow
-- Release and architecture documentation
-- Application-layer unit tests
+- Live process inventory with CPU, working-set memory, thread count, parent PID, executable path and process start time.
+- Search by name, path or PID; process details remain selected during live refresh.
+- On-demand inspection of threads, loaded modules and TCP/UDP endpoints, with explicit Win32 errors where access is restricted.
+- Launch-and-watch workflow and watch of an already running process. When a watched process exits, TraceForge keeps a 60-second in-memory timeline and writes JSON and HTML incident reports.
+- Manual MiniDump capture with a privacy warning. Dumps are never collected automatically.
+- Local SQLite sessions and incident history with a seven-day session retention window.
+- Rule-based CPU and memory anomaly flags, standalone report export, agent recovery and per-instance named-pipe isolation.
+- Self-contained portable x64 ZIP with a SHA-256 checksum.
 
-## Requires the final Windows validation pass before v1.0.0
+## Limits
 
-- Build on the exact Visual Studio 2026 installation
-- NuGet restore validation
-- Packaged WinUI child-agent deployment validation
-- Long-running sampling test
-- SQLite growth/retention test
-- MSIX signing and installation smoke test
+- A watch follows one process at a time. Launching an application that exits before the watch attaches may miss its exit.
+- An observed exit code is not proof of a crash. TraceForge does not yet correlate Windows Error Reporting or Event Log records.
+- Inspection and dump capture depend on the current user's Windows access rights. Protected or elevated processes may expose only partial data.
+- There is no automatic crash-time dump, hang detector, symbol resolution, updater or public extension API.
+- The portable package is not signed. There is no installer in this release.
 
-## Original roadmap items intentionally not claimed as complete in RC1
-
-- Full per-thread inspector
-- Full module/DLL inspector UI
-- Open-handle/file inspector
-- Per-process TCP/UDP connection inspector
-- Automatic crash-time MiniDump capture
-- PDB/symbol resolution
-- Windows Event Log/WER crash correlation
-- Hang detection timeline UI
-- LLM/AI diagnostic provider
-- Automatic updater
-- Stable public plugin API
-
-These should be completed and validated before calling the project feature-complete against the original extended roadmap. RC1 is the integrated launch baseline.
+The original roadmap describes a broader product. These deferred features are not presented as complete in 1.0.0.

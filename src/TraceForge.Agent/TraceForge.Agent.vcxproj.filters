@@ -12,18 +12,24 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AgentApplication.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="DumpCapture.cpp"><Filter>Source Files</Filter></ClCompile>
     <ClCompile Include="JsonProtocol.cpp"><Filter>Source Files</Filter></ClCompile>
     <ClCompile Include="NamedPipeServer.cpp"><Filter>Source Files</Filter></ClCompile>
     <ClCompile Include="ProcessEnumerator.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="ProcessInspection.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="ProcessWatcher.cpp"><Filter>Source Files</Filter></ClCompile>
     <ClCompile Include="TraceForge.Agent.cpp"><Filter>Source Files</Filter></ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AgentApplication.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="DumpCapture.h"><Filter>Header Files</Filter></ClInclude>
     <ClInclude Include="ExitCode.h"><Filter>Header Files</Filter></ClInclude>
     <ClInclude Include="JsonProtocol.h"><Filter>Header Files</Filter></ClInclude>
     <ClInclude Include="NamedPipeServer.h"><Filter>Header Files</Filter></ClInclude>
     <ClInclude Include="ProcessEnumerator.h"><Filter>Header Files</Filter></ClInclude>
     <ClInclude Include="ProcessInfo.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="ProcessInspection.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="ProcessWatcher.h"><Filter>Header Files</Filter></ClInclude>
     <ClInclude Include="UniqueHandle.h"><Filter>Header Files</Filter></ClInclude>
   </ItemGroup>
 </Project>

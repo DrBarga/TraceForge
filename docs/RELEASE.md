@@ -1,13 +1,15 @@
-# Release checklist
+# TraceForge 1.0.0 release procedure
 
-1. Build `Release | x64`.
-2. Run all tests.
-3. Start TraceForge.App and verify the agent connects.
-4. Verify process refresh, filtering and selection.
-5. Leave live refresh enabled for at least 10 minutes.
-6. Export a diagnostic report and inspect the JSON.
-7. Confirm `%LOCALAPPDATA%\TraceForge\traceforge.db` is created.
-8. Confirm an inaccessible/protected process does not terminate the agent.
-9. Confirm closing the UI terminates the child agent.
-10. Package and sign the MSIX with the release certificate.
-11. Tag the tested commit as `v1.0.0`.
+Run `scripts/build-release.ps1` on Windows with Visual Studio 2026, the C++ desktop workload and .NET 10 SDK. The script builds the solution, runs the tests, publishes the self-contained x64 application and writes a ZIP and SHA-256 file to `artifacts/dist`.
+
+Before distributing a build:
+
+1. Launch `TraceForge.App.exe` from the extracted ZIP, not a development output folder.
+2. Check live refresh, search, selection, inspection, history and report export.
+3. Watch a disposable process through exit and check the incident report and history entry.
+4. Capture a MiniDump of a disposable process after reading the privacy warning.
+5. Stop the Agent during live refresh and confirm recovery; close the App and confirm that no child Agent remains.
+6. Verify the ZIP checksum and confirm that the archive includes `TraceForge.Agent.exe`.
+7. Check the Windows CI run for the exact commit being distributed.
+
+The distributed ZIP is portable and unsigned. A signed installer, clean-machine installation test and automatic update channel are separate future work. Do not claim those checks as completed by a local build.

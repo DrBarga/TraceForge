@@ -1,14 +1,17 @@
 #include "NamedPipeServer.h"
+#include "DumpCapture.h"
 #include "JsonProtocol.h"
+#include "ProcessInspection.h"
 #include "UniqueHandle.h"
 
 #include <chrono>
+#include <Sddl.h>
 #include <stdexcept>
 #include <system_error>
+#include <vector>
 
 namespace
 {
-    constexpr wchar_t PipePath[] = LR"(\\.\pipe\TraceForge.Agent.v1)";
     constexpr std::size_t MaxRequestLength = 64 * 1024;
 
     [[noreturn]] void ThrowWin32Error(DWORD error, const char* operation)
@@ -25,26 +28,121 @@ namespace
         return std::chrono::duration_cast<std::chrono::milliseconds>(
             now.time_since_epoch()).count();
     }
+
+    class PipeSecurity final
+    {
+    public:
+        PipeSecurity()
+        {
+            const traceforge::agent::UniqueHandle token = OpenCurrentProcessToken();
+
+            DWORD tokenInformationSize = 0;
+            GetTokenInformation(token.Get(), TokenUser, nullptr, 0, &tokenInformationSize);
+            if (GetLastError() != ERROR_INSUFFICIENT_BUFFER)
+            {
+                ThrowWin32Error(GetLastError(), "GetTokenInformation(size)");
+            }
+
+            std::vector<std::byte> tokenInformation(tokenInformationSize);
+            if (!GetTokenInformation(
+                    token.Get(),
+                    TokenUser,
+                    tokenInformation.data(),
+                    tokenInformationSize,
+                    &tokenInformationSize))
+            {
+                ThrowWin32Error(GetLastError(), "GetTokenInformation");
+            }
+
+            const auto tokenUser = reinterpret_cast<const TOKEN_USER*>(tokenInformation.data());
+            LPWSTR sidText = nullptr;
+            if (!ConvertSidToStringSidW(tokenUser->User.Sid, &sidText))
+            {
+                ThrowWin32Error(GetLastError(), "ConvertSidToStringSidW");
+            }
+
+            const std::wstring securityDefinition =
+                L"D:P(A;;GA;;;" + std::wstring(sidText) + L")(A;;GA;;;SY)";
+            LocalFree(sidText);
+
+            if (!ConvertStringSecurityDescriptorToSecurityDescriptorW(
+                    securityDefinition.c_str(),
+                    SDDL_REVISION_1,
+                    &securityDescriptor_,
+                    nullptr))
+            {
+                ThrowWin32Error(
+                    GetLastError(),
+                    "ConvertStringSecurityDescriptorToSecurityDescriptorW");
+            }
+
+            attributes_.nLength = sizeof(attributes_);
+            attributes_.lpSecurityDescriptor = securityDescriptor_;
+            attributes_.bInheritHandle = FALSE;
+        }
+
+        ~PipeSecurity()
+        {
+            if (securityDescriptor_ != nullptr)
+            {
+                LocalFree(securityDescriptor_);
+            }
+        }
+
+        PipeSecurity(const PipeSecurity&) = delete;
+        PipeSecurity& operator=(const PipeSecurity&) = delete;
+
+        [[nodiscard]] SECURITY_ATTRIBUTES* Attributes() noexcept
+        {
+            return &attributes_;
+        }
+
+    private:
+        [[nodiscard]] static traceforge::agent::UniqueHandle OpenCurrentProcessToken()
+        {
+            HANDLE token = nullptr;
+            if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &token))
+            {
+                ThrowWin32Error(GetLastError(), "OpenProcessToken");
+            }
+
+            return traceforge::agent::UniqueHandle(token);
+        }
+
+        PSECURITY_DESCRIPTOR securityDescriptor_ = nullptr;
+        SECURITY_ATTRIBUTES attributes_{};
+    };
 }
 
 namespace traceforge::agent
 {
+    NamedPipeServer::NamedPipeServer(std::wstring pipeName)
+        : pipePath_(LR"(\\.\pipe\)" + pipeName)
+    {
+        if (pipeName.empty() || pipeName.size() > 128 ||
+            pipeName.find_first_not_of(L"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-") != std::wstring::npos)
+        {
+            throw std::invalid_argument("Invalid Agent pipe name.");
+        }
+    }
+
     void NamedPipeServer::Run()
     {
         bool keepRunning = true;
+        PipeSecurity pipeSecurity;
 
         while (keepRunning)
         {
             const UniqueHandle pipe(
                 CreateNamedPipeW(
-                    PipePath,
+                    pipePath_.c_str(),
                     PIPE_ACCESS_DUPLEX,
-                    PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT,
+                    PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT | PIPE_REJECT_REMOTE_CLIENTS,
                     1,
                     1024 * 1024,
                     1024 * 1024,
                     0,
-                    nullptr));
+                    pipeSecurity.Attributes()));
 
             if (!pipe.IsValid())
             {
@@ -145,7 +243,8 @@ namespace traceforge::agent
         {
             try
             {
-                const auto type = json::ExtractType(request);
+                const auto parsed = json::ParseRequest(request);
+                const auto& type = parsed.type;
 
                 if (type == "ping")
                 {
@@ -155,12 +254,48 @@ namespace traceforge::agent
 
                 if (type == "snapshot")
                 {
+                    const auto processExit = processWatcher_.Poll();
                     auto processes = processEnumerator_.Enumerate();
                     WriteLine(
                         pipe,
                         json::BuildSnapshotResponse(
                             processes,
-                            UnixMillisecondsNow()));
+                            UnixMillisecondsNow(),
+                            processExit));
+                    continue;
+                }
+
+                if (type == "watch")
+                {
+                    const auto processId = parsed.processId;
+                    if (!processId.has_value())
+                    {
+                        WriteLine(pipe, json::BuildErrorResponse("A valid process ID is required."));
+                        continue;
+                    }
+
+                    processWatcher_.Watch(*processId);
+                    WriteLine(pipe, json::BuildWatchResponse(*processId));
+                    continue;
+                }
+
+                if (type == "inspect")
+                {
+                    const auto processId = parsed.processId;
+                    if (!processId.has_value() || *processId == 0)
+                    {
+                        WriteLine(pipe, json::BuildErrorResponse("A valid process ID is required."));
+                        continue;
+                    }
+
+                    WriteLine(pipe, json::BuildInspectionResponse(ProcessInspector::Inspect(*processId)));
+                    continue;
+                }
+
+                if (type == "unwatch")
+                {
+                    processWatcher_.Stop();
+                    WriteLine(pipe, json::BuildUnwatchResponse());
                     continue;
                 }
 
@@ -169,6 +304,20 @@ namespace traceforge::agent
                     WriteLine(pipe, json::BuildShutdownResponse());
                     keepRunning = false;
                     return;
+                }
+
+                if (type == "captureDump")
+                {
+                    const auto processId = parsed.processId;
+                    if (!processId.has_value())
+                    {
+                        WriteLine(pipe, json::BuildErrorResponse("A valid process ID is required."));
+                        continue;
+                    }
+
+                    const auto path = DumpCapture::Capture(*processId);
+                    WriteLine(pipe, json::BuildDumpResponse(path));
+                    continue;
                 }
 
                 WriteLine(pipe, json::BuildErrorResponse("Unsupported request type."));

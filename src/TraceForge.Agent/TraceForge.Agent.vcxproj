@@ -41,6 +41,10 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir>$(MSBuildThisFileDirectory)..\..\artifacts\bin\TraceForge.Agent\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(MSBuildThisFileDirectory)..\..\artifacts\obj\TraceForge.Agent\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
@@ -48,12 +52,13 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;WIN32_LEAN_AND_MEAN;NOMINMAX;UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Psapi.lib;Advapi32.lib;Dbghelp.lib;Shell32.lib;Ole32.lib;Iphlpapi.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -68,12 +73,13 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;WIN32_LEAN_AND_MEAN;NOMINMAX;UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Psapi.lib;Advapi32.lib;Dbghelp.lib;Shell32.lib;Ole32.lib;Iphlpapi.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -81,18 +87,24 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AgentApplication.cpp" />
+    <ClCompile Include="DumpCapture.cpp" />
     <ClCompile Include="JsonProtocol.cpp" />
     <ClCompile Include="NamedPipeServer.cpp" />
     <ClCompile Include="ProcessEnumerator.cpp" />
+    <ClCompile Include="ProcessInspection.cpp" />
+    <ClCompile Include="ProcessWatcher.cpp" />
     <ClCompile Include="TraceForge.Agent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AgentApplication.h" />
+    <ClInclude Include="DumpCapture.h" />
     <ClInclude Include="ExitCode.h" />
     <ClInclude Include="JsonProtocol.h" />
     <ClInclude Include="NamedPipeServer.h" />
     <ClInclude Include="ProcessEnumerator.h" />
     <ClInclude Include="ProcessInfo.h" />
+    <ClInclude Include="ProcessInspection.h" />
+    <ClInclude Include="ProcessWatcher.h" />
     <ClInclude Include="UniqueHandle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

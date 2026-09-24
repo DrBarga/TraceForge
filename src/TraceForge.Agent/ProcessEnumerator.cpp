@@ -26,21 +26,30 @@ namespace
         return result.QuadPart;
     }
 
-    [[nodiscard]] std::wstring QueryExecutablePath(HANDLE process)
+    [[nodiscard]] bool QueryExecutablePath(
+        HANDLE process,
+        std::wstring& path,
+        DWORD& error) noexcept
     {
-        std::wstring path(32768, L'\0');
+        path.assign(32768, L'\0');
         DWORD length = static_cast<DWORD>(path.size());
 
         if (!QueryFullProcessImageNameW(process, 0, path.data(), &length))
         {
-            return {};
+            error = GetLastError();
+            path.clear();
+            return false;
         }
 
         path.resize(length);
-        return path;
+        error = ERROR_SUCCESS;
+        return true;
     }
 
-    [[nodiscard]] std::uint64_t QueryWorkingSet(HANDLE process) noexcept
+    [[nodiscard]] bool QueryWorkingSet(
+        HANDLE process,
+        std::uint64_t& workingSetBytes,
+        DWORD& error) noexcept
     {
         PROCESS_MEMORY_COUNTERS_EX counters{};
         counters.cb = sizeof(counters);
@@ -50,10 +59,14 @@ namespace
                 reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&counters),
                 sizeof(counters)))
         {
-            return 0;
+            error = GetLastError();
+            workingSetBytes = 0;
+            return false;
         }
 
-        return static_cast<std::uint64_t>(counters.WorkingSetSize);
+        workingSetBytes = static_cast<std::uint64_t>(counters.WorkingSetSize);
+        error = ERROR_SUCCESS;
+        return true;
     }
 }
 
@@ -89,6 +102,7 @@ namespace traceforge::agent
 
             ProcessInfo info{};
             info.processId = processId;
+            info.parentProcessId = static_cast<std::uint32_t>(entry.th32ParentProcessID);
             info.name = entry.szExeFile;
             info.threadCount = static_cast<std::uint32_t>(entry.cntThreads);
 
@@ -114,8 +128,19 @@ namespace traceforge::agent
 
             if (process.IsValid())
             {
-                info.executablePath = QueryExecutablePath(process.Get());
-                info.workingSetBytes = QueryWorkingSet(process.Get());
+                DWORD pathError = ERROR_SUCCESS;
+                info.pathAvailable = QueryExecutablePath(
+                    process.Get(),
+                    info.executablePath,
+                    pathError);
+                info.pathError = pathError;
+
+                DWORD memoryError = ERROR_SUCCESS;
+                info.memoryAvailable = QueryWorkingSet(
+                    process.Get(),
+                    info.workingSetBytes,
+                    memoryError);
+                info.memoryError = memoryError;
 
                 FILETIME creation{};
                 FILETIME exit{};
@@ -125,6 +150,9 @@ namespace traceforge::agent
                 if (GetProcessTimes(process.Get(), &creation, &exit, &kernel, &user))
                 {
                     const auto creationTime = FileTimeToUInt64(creation);
+                    constexpr std::uint64_t WindowsToUnixMilliseconds = 11644473600000ULL;
+                    info.startTimeUnixMs = static_cast<std::int64_t>(
+                        creationTime / 10000ULL - WindowsToUnixMilliseconds);
                     const auto totalTime = FileTimeToUInt64(kernel) + FileTimeToUInt64(user);
 
                     if (const auto iterator = previousCpuSamples_.find(processId);
@@ -144,6 +172,7 @@ namespace traceforge::agent
                                 static_cast<double>(processDelta) / capacity100ns * 100.0,
                                 0.0,
                                 100.0);
+                            info.cpuAvailable = true;
                         }
                     }
 
@@ -153,6 +182,16 @@ namespace traceforge::agent
                         wallTimeMs
                     };
                 }
+                else
+                {
+                    info.cpuError = GetLastError();
+                }
+            }
+            else
+            {
+                info.pathError = accessError;
+                info.cpuError = accessError;
+                info.memoryError = accessError;
             }
 
             processes.push_back(std::move(info));
