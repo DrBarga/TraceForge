@@ -1,0 +1,61 @@
+name: Publish portable release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  package-and-upload:
+    runs-on: windows-2025-vs2026
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout release source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Locate MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build portable archive
+        shell: pwsh
+        run: ./scripts/build-release.ps1
+
+      - name: Upload release files
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          if ($env:RELEASE_TAG -ne "v$version") {
+            throw "Release tag and VERSION do not match."
+          }
+
+          $archive = "artifacts/dist/TraceForge-$version-win-x64.zip"
+          $checksum = "$archive.sha256"
+          if (-not (Test-Path $archive) -or -not (Test-Path $checksum)) {
+            throw "Release archive or checksum is missing."
+          }
+
+          gh release upload $env:RELEASE_TAG $archive $checksum --clobber --repo $env:GITHUB_REPOSITORY
+          if ($LASTEXITCODE -ne 0) {
+            throw "GitHub release upload failed."
+          }
