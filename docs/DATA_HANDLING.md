@@ -1,6 +1,6 @@
 # TraceForge: data handling and security
 
-Applies to the Windows x64 desktop release **1.0.0**. Reviewed on **1 October 2026** against the published release source. Maintainer: **Bohdan Zelya**, [bogdan.zelya.s@gmail.com](mailto:bogdan.zelya.s@gmail.com).
+Applies to the Windows x64 desktop release **1.0.0**. Reviewed on **1 October 2026** against the published release source. Maintainer: **Bohdan Zelenskyi**, [bogdan.zelya.s@gmail.com](mailto:bogdan.zelya.s@gmail.com).
 
 ## What is collected
 
@@ -18,7 +18,7 @@ Routine monitoring does not collect keystrokes, screenshots, document contents, 
 All desktop diagnostic files are stored under **%LOCALAPPDATA%\TraceForge** for the Windows user running the app.
 
 - **traceforge.db** and its SQLite WAL/SHM sidecars contain sessions, process samples saved approximately every 30 seconds, threshold anomaly flags, and incident metadata. At startup, the app deletes sessions whose end time, or start time when no end is recorded, is older than seven days; related rows are deleted with them. Cleanup is not a continuously running expiry service or secure erasure.
-- **Reports\** contains exported and automatic incident JSON/HTML files. **Dumps\** contains manual dumps. **Logs\** contains app and agent logs. These files have no automatic retention or rotation in 1.0.0 and remain until you delete them.
+- **Reports** contains exported and automatic incident JSON/HTML files. **Dumps** contains manual dumps. **Logs** contains app and agent logs. These files have no automatic retention or rotation in 1.0.0 and remain until you delete them.
 - The **60-second Black Box** is an in-memory rolling buffer. Its contents can persist in exported incident reports; the seven-day database cleanup does not remove those reports.
 
 ## What leaves the machine

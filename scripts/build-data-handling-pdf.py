@@ -38,7 +38,7 @@ def footer(canvas, document):
     canvas.setFillColor(MUTED)
     canvas.drawRightString(width - 44, height - 25, "WINDOWS X64 / 1.0.0")
     canvas.line(44, 36, width - 44, 36)
-    canvas.drawString(44, 23, "Bohdan Zelya  |  bogdan.zelya.s@gmail.com")
+    canvas.drawString(44, 23, "Bohdan Zelenskyi  |  bogdan.zelya.s@gmail.com")
     canvas.drawRightString(width - 44, 23, f"1 October 2026  /  {document.page}")
     canvas.restoreState()
 
@@ -68,7 +68,7 @@ def main():
         else:
             story.append(Paragraph(inline(block.replace("\n", " ")), body))
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    document = SimpleDocTemplate(str(OUTPUT), pagesize=A4, rightMargin=44, leftMargin=44, topMargin=52, bottomMargin=50, title="TraceForge 1.0.0 - data handling and security", author="Bohdan Zelya", subject="Collection, local storage, retention, sharing and protection of diagnostic data")
+    document = SimpleDocTemplate(str(OUTPUT), pagesize=A4, rightMargin=44, leftMargin=44, topMargin=52, bottomMargin=50, title="TraceForge 1.0.0 - data handling and security", author="Bohdan Zelenskyi", subject="Collection, local storage, retention, sharing and protection of diagnostic data")
     document.build(story, onFirstPage=footer, onLaterPages=footer)
     print(f"Built {OUTPUT}")
 

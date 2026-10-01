@@ -1,6 +1,6 @@
 # TraceForge website
 
-A static product site with locally served CSS and SVG assets. No client framework, package dependencies, analytics, cookies, contact form, or external fonts are used. Hosting providers can retain normal request logs.
+A static product site with locally served CSS, SVG assets, and a small keyboard-accessible process walkthrough. The walkthrough uses an example dataset and does not collect workstation information. No client framework, package dependencies, analytics, cookies, contact form, or external fonts are used. Hosting providers can retain normal request logs.
 
 Production: **https://traceforge-lovat.vercel.app**. Published to the `traceforge` project in the Vercel account `bogdan.zelya.s@gmail.com` on 1 October 2026. The initial deployment uploaded the built `dist` directory through Vercel's Drop to Deploy flow. It is not connected to automatic deployments from GitHub.
 

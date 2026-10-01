@@ -28,15 +28,15 @@ The executables are **not code-signed**. This release has no installer; Windows 
 
 ## What is included in 1.0.0
 
-| Capability | What you get |
-| --- | --- |
-| Process inventory | PID, parent PID, executable name and path, start time, CPU, working-set memory, thread count |
-| Access visibility | Availability flags and Win32 errors, so an unavailable metric is not shown as a genuine zero |
-| Process inspector | Thread IDs and priorities, loaded modules and paths, TCP/UDP endpoints |
-| Process watch | One existing process or a launched application, observed exit code, preceding 60-second timeline |
-| Reports | Local JSON and standalone HTML exports; reports are written automatically after a watched exit |
-| MiniDump | Manual capture with a sensitive-data warning and confirmation |
-| History | Local SQLite sessions, sampled metrics, anomaly flags, and incident metadata |
+| Capability          | What you get                                                                                      |
+| ------------------- | ------------------------------------------------------------------------------------------------- |
+| Process inventory   | PID, parent PID, executable name and path, start time, CPU, working-set memory, thread count      |
+| Access visibility   | Availability flags and Win32 errors, so an unavailable metric is not shown as a genuine zero      |
+| Process inspector   | Thread IDs and priorities, loaded modules and paths, TCP/UDP endpoints                            |
+| Process watch       | One existing process or a launched application, observed exit code, preceding 60-second timeline  |
+| Reports             | Local JSON and standalone HTML exports; reports are written automatically after a watched exit    |
+| MiniDump            | Manual capture with a sensitive-data warning and confirmation                                     |
+| History             | Local SQLite sessions, sampled metrics, anomaly flags, and incident metadata                      |
 | Connection recovery | A separate agent per app instance, request timeouts, protocol checks, and automatic agent restart |
 
 CPU and memory warnings are threshold-based. They do not establish a root cause.
@@ -45,12 +45,12 @@ CPU and memory warnings are threshold-based. They do not establish a root cause.
 
 TraceForge stores its data under `%LOCALAPPDATA%\TraceForge`:
 
-| Location | Contents | Retention |
-| --- | --- | --- |
+| Location                            | Contents                                                         | Retention                                                    |
+| ----------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------ |
 | `traceforge.db` and SQLite sidecars | Sessions, full process samples, anomaly flags, incident metadata | Expired sessions are removed at app startup after seven days |
-| `Reports\` | JSON and HTML reports, including automatic watched-exit reports | Until you delete them |
-| `Dumps\` | Manually requested MiniDumps | Until you delete them |
-| `Logs\` | App and agent troubleshooting logs | Until you delete them |
+| `Reports\`                          | JSON and HTML reports, including automatic watched-exit reports  | Until you delete them                                        |
+| `Dumps\`                            | Manually requested MiniDumps                                     | Until you delete them                                        |
+| `Logs\`                             | App and agent troubleshooting logs                               | Until you delete them                                        |
 
 The UI normally refreshes every two seconds; database snapshots are saved every 30 seconds. The Black Box timeline is held in memory for 60 seconds and is also included in exported reports. Reports can describe **other processes on the workstation**, not just the selected process.
 
@@ -94,7 +94,7 @@ TraceForge watches one process at a time. Very short-lived applications can exit
 
 ## Author and feedback
 
-Built and maintained by **Bohdan Zelya**.
+Built and maintained by **Bohdan Zelenskyi**.
 
 - Contact: [bogdan.zelya.s@gmail.com](mailto:bogdan.zelya.s@gmail.com)
 - Bugs and feature requests: [GitHub Issues](https://github.com/DrBarga/TraceForge/issues)

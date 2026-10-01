@@ -3,374 +3,604 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#f6f5f0" />
+    <meta name="theme-color" content="#101417" />
     <meta
       name="description"
-      content="TraceForge is a portable Windows diagnostics tool. Inspect processes, watch an application through exit, and export reports. Diagnostic data stays local."
+      content="TraceForge 1.0.0: portable Windows process diagnostics. Inspect threads, modules and endpoints, watch a process through exit, and keep a 60-second timeline. Built by Bohdan Zelenskyi."
     />
-    <meta property="og:title" content="TraceForge — keep the context" />
+    <meta
+      property="og:title"
+      content="TraceForge 1.0.0 | Windows process diagnostics"
+    />
     <meta
       property="og:description"
-      content="Local Windows diagnostics. Process inspection, a 60-second timeline, and reports you control."
+      content="C++20 collection. C# desktop. Local reports. A process monitor with the preceding minute attached."
     />
     <meta property="og:type" content="website" />
-    <title>TraceForge — local Windows diagnostics</title>
+    <meta property="og:url" content="https://traceforge-lovat.vercel.app" />
+    <link rel="canonical" href="https://traceforge-lovat.vercel.app" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/styles.css" />
+    <script src="/workbench.js" defer></script>
+    <title>TraceForge | Windows process diagnostics</title>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="header">
       <a class="brand" href="/" aria-label="TraceForge home"
-        ><img src="/favicon.svg" width="30" height="30" alt="" />TraceForge<span
+        ><img src="/favicon.svg" width="28" height="28" alt="" />TraceForge<span
           class="brand-dot"
-          >.</span
+          >/</span
         ></a
       >
+      <span class="header-platform">WINDOWS / X64</span>
       <nav aria-label="Main navigation">
-        <a href="#features">Features</a
-        ><a href="/security">Data &amp; security</a><a href="#about">About</a>
+        <a href="#workbench">Explore</a><a href="#architecture">Architecture</a
+        ><a href="/security">Data &amp; security</a>
       </nav>
-      <a
-        class="nav-download"
-        href="https://github.com/DrBarga/TraceForge/releases/tag/v1.0.0"
-        >Get 1.0.0 <span aria-hidden="true">↗</span></a
+      <a class="nav-download" href="#download"
+        >Download <span aria-hidden="true">↙</span></a
       >
     </header>
-    <main id="main">
-      <section class="hero container">
-        <div class="hero-copy">
-          <div class="eyebrow">
-            <span class="status-dot" aria-hidden="true"></span> WINDOWS
-            DIAGNOSTICS · V1.0.0
+    <div class="site-shell">
+      <aside class="sidebar" aria-label="On this page">
+        <div class="sidebar-label">PROJECT INDEX</div>
+        <nav>
+          <a href="#overview"><span>01</span> Overview</a
+          ><a href="#workbench"><span>02</span> Process workbench</a
+          ><a href="#architecture"><span>03</span> Architecture</a
+          ><a href="#data"><span>04</span> Data boundaries</a
+          ><a href="#download"><span>05</span> Get the release</a
+          ><a href="#about"><span>06</span> Maintainer</a>
+        </nav>
+        <div class="sidebar-release">
+          <span class="status-dot" aria-hidden="true"></span> RELEASE 1.0.0<span
+            class="sidebar-detail"
+            >Portable Windows x64<br />C++20 + C# / .NET 10</span
+          ><a href="https://github.com/DrBarga/TraceForge"
+            >Browse the source ↗</a
+          >
+        </div>
+      </aside>
+      <main id="main">
+        <section class="intro" id="overview">
+          <div class="section-kicker">
+            <span class="status-dot" aria-hidden="true"></span> TRACEFORGE 1.0.0
+            <span class="kicker-divider">/</span> LOCAL PROCESS DIAGNOSTICS
           </div>
-          <h1>When an app exits,<br />keep the <em>context.</em></h1>
-          <p class="hero-description">
-            Inspect a process. Follow its resource usage. Save the moments
-            before it exits. TraceForge brings local Windows diagnostics into
-            one portable desktop app.
+          <h1>A process exits.<br /><span>Keep the last minute.</span></h1>
+          <div class="intro-bottom">
+            <p>
+              Watch a Windows process, inspect what it loads and connects to,
+              and keep the sampled context before it exits. Built for debugging
+              your own applications and investigating support issues.
+            </p>
+            <div class="intro-actions">
+              <a
+                class="button button-primary"
+                href="https://github.com/DrBarga/TraceForge/releases/download/v1.0.0/TraceForge-1.0.0-win-x64.zip"
+                >Download 1.0.0 <span aria-hidden="true">↓</span></a
+              ><a
+                class="source-link"
+                href="https://github.com/DrBarga/TraceForge"
+                >Read the source ↗</a
+              >
+            </div>
+          </div>
+          <dl class="spec-strip">
+            <div>
+              <dt>PLATFORM</dt>
+              <dd>Windows 10 2004+</dd>
+            </div>
+            <div>
+              <dt>PACKAGE</dt>
+              <dd>Portable / x64</dd>
+            </div>
+            <div>
+              <dt>COLLECTION</dt>
+              <dd>Native Windows APIs</dd>
+            </div>
+            <div>
+              <dt>STORAGE</dt>
+              <dd>Local SQLite + files</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="section workbench-section" id="workbench">
+          <div class="section-title">
+            <span class="section-number">02</span>
+            <div>
+              <h2>Follow one process.</h2>
+              <p>A small walkthrough of the information TraceForge collects.</p>
+            </div>
+            <span class="technical-note">INTERACTIVE EXAMPLE</span>
+          </div>
+          <div class="workbench">
+            <div class="workbench-toolbar">
+              <div class="workbench-title">
+                <span class="status-dot" aria-hidden="true"></span> demo-session
+                <span>/</span> editor.exe <span>/</span> PID 4120
+              </div>
+              <span class="example-label">Sample data</span>
+            </div>
+            <div
+              class="workbench-tabs"
+              role="tablist"
+              aria-label="Process example views"
+            >
+              <button
+                id="tab-process"
+                role="tab"
+                aria-selected="true"
+                aria-controls="panel-process"
+                tabindex="0"
+              >
+                Process <span>01</span></button
+              ><button
+                id="tab-inspector"
+                role="tab"
+                aria-selected="false"
+                aria-controls="panel-inspector"
+                tabindex="-1"
+              >
+                Inspector <span>02</span></button
+              ><button
+                id="tab-timeline"
+                role="tab"
+                aria-selected="false"
+                aria-controls="panel-timeline"
+                tabindex="-1"
+              >
+                Exit timeline <span>03</span>
+              </button>
+            </div>
+            <div class="workbench-content">
+              <section
+                id="panel-process"
+                role="tabpanel"
+                aria-labelledby="tab-process"
+                tabindex="0"
+              >
+                <div class="process-summary">
+                  <div>
+                    <span class="panel-label">SELECTED PROCESS</span>
+                    <h3>editor.exe</h3>
+                    <span class="process-path">C:\Apps\Example\editor.exe</span>
+                  </div>
+                  <span class="state-tag">OBSERVING</span>
+                </div>
+                <dl class="process-metrics">
+                  <div>
+                    <dt>CPU</dt>
+                    <dd>14.8<span>%</span></dd>
+                  </div>
+                  <div>
+                    <dt>WORKING SET</dt>
+                    <dd>248<span> MiB</span></dd>
+                  </div>
+                  <div>
+                    <dt>THREADS</dt>
+                    <dd>24</dd>
+                  </div>
+                  <div>
+                    <dt>PARENT PID</dt>
+                    <dd>1832</dd>
+                  </div>
+                </dl>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Process</th>
+                        <th>PID</th>
+                        <th>CPU</th>
+                        <th>Working set</th>
+                        <th>Access</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr class="selected-row">
+                        <td>
+                          <span class="row-marker" aria-hidden="true">›</span>
+                          editor.exe
+                        </td>
+                        <td>4120</td>
+                        <td>14.8%</td>
+                        <td>248 MiB</td>
+                        <td><span class="table-status">Available</span></td>
+                      </tr>
+                      <tr>
+                        <td>worker.exe</td>
+                        <td>5836</td>
+                        <td>2.1%</td>
+                        <td>86 MiB</td>
+                        <td><span class="table-status">Available</span></td>
+                      </tr>
+                      <tr>
+                        <td>protected.exe</td>
+                        <td>780</td>
+                        <td>—</td>
+                        <td>—</td>
+                        <td><span class="limited-status">Win32: 5</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p class="panel-footnote">
+                  Unavailable measurements keep their Windows error. An access
+                  failure is not recorded as zero CPU or zero memory.
+                </p>
+              </section>
+              <section
+                id="panel-inspector"
+                role="tabpanel"
+                aria-labelledby="tab-inspector"
+                tabindex="0"
+                hidden
+              >
+                <div class="process-summary">
+                  <div>
+                    <span class="panel-label">ON-DEMAND INSPECTION</span>
+                    <h3>What the process is using.</h3>
+                  </div>
+                  <span class="state-tag">PID 4120</span>
+                </div>
+                <div class="inspector-grid">
+                  <div>
+                    <h4>Threads</h4>
+                    <dl class="compact-list">
+                      <div>
+                        <dt>TID 4124</dt>
+                        <dd>base priority 8</dd>
+                      </div>
+                      <div>
+                        <dt>TID 4140</dt>
+                        <dd>base priority 8</dd>
+                      </div>
+                      <div>
+                        <dt>TID 4148</dt>
+                        <dd>base priority 10</dd>
+                      </div>
+                    </dl>
+                  </div>
+                  <div>
+                    <h4>Loaded modules</h4>
+                    <dl class="compact-list">
+                      <div>
+                        <dt>editor.exe</dt>
+                        <dd>3,840 KiB</dd>
+                      </div>
+                      <div>
+                        <dt>kernel32.dll</dt>
+                        <dd>768 KiB</dd>
+                      </div>
+                      <div>
+                        <dt>user32.dll</dt>
+                        <dd>1,792 KiB</dd>
+                      </div>
+                    </dl>
+                  </div>
+                </div>
+                <h4 class="endpoint-heading">Network endpoints</h4>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Protocol</th>
+                        <th>Local endpoint</th>
+                        <th>Remote endpoint</th>
+                        <th>State</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>TCP</td>
+                        <td>127.0.0.1:5050</td>
+                        <td>—</td>
+                        <td>Listening</td>
+                      </tr>
+                      <tr>
+                        <td>TCP</td>
+                        <td>192.0.2.10:51932</td>
+                        <td>198.51.100.25:443</td>
+                        <td>Established</td>
+                      </tr>
+                      <tr>
+                        <td>UDP</td>
+                        <td>0.0.0.0:5353</td>
+                        <td>—</td>
+                        <td>Bound</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p class="panel-footnote">
+                  Endpoint tables describe connections. TraceForge does not
+                  capture packet contents.
+                </p>
+              </section>
+              <section
+                id="panel-timeline"
+                role="tabpanel"
+                aria-labelledby="tab-timeline"
+                tabindex="0"
+                hidden
+              >
+                <div class="process-summary">
+                  <div>
+                    <span class="panel-label">WATCHED PROCESS EXIT</span>
+                    <h3>The preceding 60 seconds.</h3>
+                  </div>
+                  <span class="state-tag exit-tag">EXIT 0x00000001</span>
+                </div>
+                <figure class="timeline-chart">
+                  <svg
+                    viewBox="0 0 800 150"
+                    role="img"
+                    aria-label="Example CPU usage over 60 seconds"
+                  >
+                    <path class="chart-grid" d="M0 25H800M0 75H800M0 125H800" />
+                    <path
+                      class="chart-line"
+                      d="M0 110L25 108L50 105L75 116L100 95L125 104L150 100L175 92L200 96L225 80L250 85L275 75L300 95L325 86L350 67L375 70L400 90L425 81L450 49L475 60L500 40L525 48L550 37L575 55L600 31L625 17L650 46L675 64L700 89L725 109L750 121L775 134L800 134"
+                    />
+                    <path class="chart-exit" d="M775 0V150" />
+                  </svg>
+                  <figcaption>
+                    <span>−60s</span><span>CPU usage / sampled context</span
+                    ><span>Exit observed</span>
+                  </figcaption>
+                </figure>
+                <div class="exit-evidence">
+                  <div>
+                    <span class="panel-label">RECORDED</span
+                    ><strong>Exit code + resource timeline</strong>
+                    <p>
+                      An exit code by itself does not establish why the
+                      application stopped.
+                    </p>
+                  </div>
+                  <div class="report-files">
+                    <span>TraceForge-Incident.json</span
+                    ><span>TraceForge-Incident.html</span>
+                  </div>
+                </div>
+                <p class="panel-footnote">
+                  The app writes incident reports locally when it observes the
+                  watched process exit. Dumps remain a separate, manual action.
+                </p>
+              </section>
+            </div>
+            <div class="workbench-status">
+              <span
+                ><span class="status-dot" aria-hidden="true"></span> Example
+                dataset</span
+              ><span>Explore the tabs · No access to your device</span>
+            </div>
+          </div>
+          <div class="workflow-line">
+            <span>Select a process</span><span aria-hidden="true">→</span
+            ><span>Inspect or watch</span><span aria-hidden="true">→</span
+            ><span>Save the context</span
+            ><a
+              href="https://github.com/DrBarga/TraceForge/blob/master/docs/V1_SCOPE.md"
+              >Full 1.0.0 scope ↗</a
+            >
+          </div>
+        </section>
+
+        <section class="section" id="architecture">
+          <div class="section-title">
+            <span class="section-number">03</span>
+            <div>
+              <h2>Two languages. A clear boundary.</h2>
+              <p>
+                Windows collection is native; the desktop application owns the
+                workflow.
+              </p>
+            </div>
+          </div>
+          <div class="architecture-map">
+            <div class="arch-node">
+              <span class="arch-language">C# / WINUI 3</span>
+              <h3>Desktop</h3>
+              <p>
+                Process selection<br />Monitoring &amp; reports<br />Application
+                lifetime
+              </p>
+            </div>
+            <div class="arch-connection">
+              <span>LOCAL NAMED PIPE</span
+              ><span class="pipe-line" aria-hidden="true">↔</span
+              ><small>UTF-8 JSON<br />Protocol v1</small>
+            </div>
+            <div class="arch-node">
+              <span class="arch-language">C++20 / WIN32</span>
+              <h3>Agent</h3>
+              <p>
+                Process &amp; module APIs<br />TCP / UDP tables<br />Watch
+                handles &amp; MiniDump
+              </p>
+            </div>
+            <div class="arch-storage">
+              <span>LOCAL STORAGE</span
+              ><strong>SQLite history / JSON / HTML / .dmp</strong>
+            </div>
+          </div>
+          <div class="engineering-notes">
+            <article>
+              <h3>Process identity matters.</h3>
+              <p>
+                A watch holds the process handle. Start-time checks protect
+                reconnection from attaching to a different process that reused
+                the same PID.
+              </p>
+            </article>
+            <article>
+              <h3>Collection can fail.</h3>
+              <p>
+                Availability flags and Win32 error codes travel with the
+                measurements. Protected processes can return partial data.
+              </p>
+            </article>
+            <article>
+              <h3>The agent can restart.</h3>
+              <p>
+                Each app instance has a separate agent and pipe. Requests have
+                timeouts; the app reconnects after communication failures.
+              </p>
+            </article>
+          </div>
+          <a
+            class="source-link"
+            href="https://github.com/DrBarga/TraceForge/blob/master/docs/ARCHITECTURE.md"
+            >Read the architecture document ↗</a
+          >
+        </section>
+
+        <section class="section" id="data">
+          <div class="section-title">
+            <span class="section-number">04</span>
+            <div>
+              <h2>Local does not mean non-sensitive.</h2>
+              <p>
+                Process paths, endpoints and dumps can reveal details about a
+                workstation.
+              </p>
+            </div>
+          </div>
+          <div class="data-layout">
+            <div class="data-summary">
+              <span class="panel-label">DATA DIRECTORY</span
+              ><code>%LOCALAPPDATA%\TraceForge</code>
+              <p>
+                The desktop app has no diagnostic upload endpoint, telemetry
+                service, or automatic update check. You decide whether to share
+                a file.
+              </p>
+              <a href="/security">Collection, protection &amp; deletion ↗</a
+              ><a href="/downloads/TraceForge-data-handling.pdf"
+                >Data-handling brief / PDF ↓</a
+              >
+            </div>
+            <dl class="retention-list">
+              <div>
+                <dt>traceforge.db</dt>
+                <dd>Seven-day session retention, cleaned at startup</dd>
+              </div>
+              <div>
+                <dt>Reports/</dt>
+                <dd>
+                  Manual exports and automatic exit reports; delete manually
+                </dd>
+              </div>
+              <div>
+                <dt>Dumps/</dt>
+                <dd>Only captured after confirmation; delete manually</dd>
+              </div>
+              <div>
+                <dt>Logs/</dt>
+                <dd>App and agent troubleshooting logs; delete manually</dd>
+              </div>
+            </dl>
+          </div>
+          <p class="boundary-note">
+            Files inherit Windows profile permissions. TraceForge does not
+            encrypt or redact them. Reports can include other processes on the
+            machine; review files before sharing.
           </p>
-          <div class="actions">
+        </section>
+
+        <section class="section" id="download">
+          <div class="section-title">
+            <span class="section-number">05</span>
+            <div>
+              <h2>Get the portable release.</h2>
+              <p>
+                Extract the archive and run TraceForge.App.exe. Keep the files
+                together.
+              </p>
+            </div>
+          </div>
+          <div class="download-row">
+            <div class="release-file">
+              <span class="file-symbol" aria-hidden="true">↓</span>
+              <div>
+                <strong>TraceForge-1.0.0-win-x64.zip</strong
+                ><span>Windows 10 2004+ / x64 / bundled runtimes</span>
+              </div>
+            </div>
             <a
               class="button button-primary"
               href="https://github.com/DrBarga/TraceForge/releases/download/v1.0.0/TraceForge-1.0.0-win-x64.zip"
-              >Download for Windows <span aria-hidden="true">↓</span></a
-            ><a class="text-link" href="https://github.com/DrBarga/TraceForge"
-              >View source <span aria-hidden="true">↗</span></a
+              >Download ZIP ↓</a
             >
           </div>
-          <p class="download-note">
-            Windows 10 2004+ · x64 · Portable ZIP<br />Unsigned release ·
+          <div class="verify-command">
+            <span class="panel-label">VERIFY THE ARCHIVE IN POWERSHELL</span>
+            <pre><code>Get-FileHash .\TraceForge-1.0.0-win-x64.zip -Algorithm SHA256</code></pre>
             <a
               href="https://github.com/DrBarga/TraceForge/releases/download/v1.0.0/TraceForge-1.0.0-win-x64.zip.sha256"
-              >SHA-256 checksum</a
-            >
-          </p>
-        </div>
-        <figure
-          class="session-figure"
-          aria-label="Illustrative watched-process session"
-        >
-          <div class="session-top">
-            <span class="mini-brand"
-              ><img src="/favicon.svg" alt="" width="21" height="21" />
-              TraceForge</span
-            ><span class="local-label"
-              ><span class="status-dot" aria-hidden="true"></span> Local
-              session</span
+              >Compare with the published checksum ↗</a
             >
           </div>
-          <div class="session-main">
-            <div class="session-title">
-              <div>
-                <span class="panel-label">WATCHED PROCESS</span>
-                <h2>SampleApp.exe</h2>
-              </div>
-              <span class="watch-badge">Watching</span>
-            </div>
-            <div class="metrics">
-              <div>
-                <span>CPU</span><strong>14.8<small>%</small></strong>
-              </div>
-              <div>
-                <span>Working set</span><strong>248<small> MiB</small></strong>
-              </div>
-              <div><span>Threads</span><strong>24</strong></div>
-            </div>
-            <div class="chart-label">
-              <span>Preceding process context</span><span>60 seconds</span>
-            </div>
-            <svg
-              class="trace-chart"
-              viewBox="0 0 440 135"
-              role="img"
-              aria-label="Example resource usage timeline"
-            >
-              <path class="chart-grid" d="M0 25H440M0 65H440M0 105H440" />
-              <path
-                class="chart-fill"
-                d="M0 109L20 104L40 108L60 96L80 101L100 83L120 90L140 69L160 77L180 62L200 83L220 56L240 66L260 39L280 47L300 15L320 39L340 50L360 37L380 59L400 48L420 72L440 61V135H0Z"
-              />
-              <path
-                class="chart-line"
-                d="M0 109L20 104L40 108L60 96L80 101L100 83L120 90L140 69L160 77L180 62L200 83L220 56L240 66L260 39L280 47L300 15L320 39L340 50L360 37L380 59L400 48L420 72L440 61"
-              />
-            </svg>
-            <div class="chart-time"><span>−60s</span><span>Now</span></div>
-            <div class="report-line">
-              <span class="report-icon" aria-hidden="true">↳</span>
-              <div>
-                <strong>Context you can take with you</strong
-                ><span>JSON + standalone HTML reports</span>
-              </div>
-              <span aria-hidden="true">↗</span>
-            </div>
+          <div class="release-limits">
+            <h3>Read before using 1.0.0</h3>
+            <ul>
+              <li>
+                The executables are unsigned. A checksum verifies archive
+                integrity, not the publisher.
+              </li>
+              <li>
+                One process can be watched at a time. Very short-lived
+                applications may exit before the watch attaches.
+              </li>
+              <li>
+                Automatic crash dumps, hang detection, symbol resolution and
+                Windows Error Reporting correlation are outside this release.
+              </li>
+              <li>
+                Ordinary diagnostics use your current Windows permissions. The
+                app does not automatically elevate or install a service.
+              </li>
+            </ul>
           </div>
-          <figcaption>
-            Illustrative session with example data. Not a live view.
-          </figcaption>
-        </figure>
-      </section>
-      <div class="trust-strip container">
-        <span><strong>Local data</strong> No telemetry upload</span
-        ><span><strong>Portable</strong> Extract and run</span
-        ><span><strong>Inspectable</strong> Source on GitHub</span
-        ><span><strong>Native collection</strong> Windows APIs</span>
-      </div>
-      <section class="section container" id="features">
-        <div class="section-heading">
-          <div>
-            <span class="eyebrow">A CLOSER LOOK</span>
-            <h2>Less guessing.<br />More useful evidence.</h2>
-          </div>
-          <p>
-            For developers debugging their apps and support engineers
-            investigating a workstation. Start with a process, then follow the
-            details that matter.
-          </p>
-        </div>
-        <div class="feature-grid">
-          <article class="feature-card">
-            <span class="feature-number">01 / OBSERVE</span>
-            <h3>Find the process.</h3>
-            <p>
-              Search by name, path, or PID. See CPU, working-set memory,
-              threads, parent process, and access limitations at a glance.
-            </p>
-            <div class="feature-tags">
-              <span>CPU &amp; memory</span><span>Process inventory</span>
-            </div>
-          </article>
-          <article class="feature-card">
-            <span class="feature-number">02 / INSPECT</span>
-            <h3>Look beneath the surface.</h3>
-            <p>
-              Inspect thread priorities, loaded modules, and TCP/UDP endpoints.
-              Windows access errors stay visible when a measurement is
-              unavailable.
-            </p>
-            <div class="feature-tags">
-              <span>Threads &amp; modules</span><span>Network endpoints</span>
-            </div>
-          </article>
-          <article class="feature-card">
-            <span class="feature-number">03 / KEEP CONTEXT</span>
-            <h3>Catch the lead-up to an exit.</h3>
-            <p>
-              Watch one process or launch an app under observation. Keep up to
-              60 seconds of sampled context and export its observed exit code.
-            </p>
-            <div class="feature-tags">
-              <span>Black Box timeline</span><span>JSON &amp; HTML</span>
-            </div>
-          </article>
-        </div>
-        <p class="scope-note">
-          An exit code alone does not prove a crash. Version 1.0.0 does not
-          include automatic crash dumps, hang detection, or symbol resolution.
-        </p>
-      </section>
-      <section class="privacy-section" id="privacy">
-        <div class="container privacy-layout">
-          <div>
-            <span class="eyebrow">YOUR WORKSTATION. YOUR DATA.</span>
-            <h2>Know what<br />you’re collecting.</h2>
-            <p>
-              Diagnostics can expose paths, process names, and network details.
-              TraceForge keeps these on your machine and documents how they are
-              stored.
-            </p>
-            <a class="button button-light" href="/security"
-              >Read the data-handling brief
-              <span aria-hidden="true">↗</span></a
-            >
-          </div>
-          <div class="privacy-facts">
+        </section>
+
+        <section class="section maintainer" id="about">
+          <div class="section-title">
+            <span class="section-number">06</span>
             <div>
-              <span>01</span>
-              <section>
-                <h3>No background upload</h3>
-                <p>
-                  The desktop app has no telemetry, remote diagnostic endpoint,
-                  or automatic update check.
-                </p>
-              </section>
-            </div>
-            <div>
-              <span>02</span>
-              <section>
-                <h3>Local history, clear retention</h3>
-                <p>
-                  SQLite history expires at startup after seven days. Reports,
-                  dumps, and logs stay until you delete them.
-                </p>
-              </section>
-            </div>
-            <div>
-              <span>03</span>
-              <section>
-                <h3>Explicit dump capture</h3>
-                <p>
-                  MiniDumps require confirmation. Files are not encrypted or
-                  redacted by the app; review them before sharing.
-                </p>
-              </section>
+              <h2>Bohdan Zelenskyi</h2>
+              <p>Developer &amp; maintainer of TraceForge.</p>
             </div>
           </div>
-        </div>
-      </section>
-      <section class="section container getting-started" id="start">
-        <div class="section-heading">
-          <div>
-            <span class="eyebrow">FROM DOWNLOAD TO DIAGNOSIS</span>
-            <h2>Three steps to a closer look.</h2>
+          <div class="maintainer-content">
+            <p>
+              I built TraceForge to make Windows process diagnostics easier to
+              collect and share. The native collection layer is written in
+              C++20; monitoring, storage and the desktop interface use C#. The
+              source and data-handling notes are public for anyone who wants to
+              inspect the implementation.
+            </p>
+            <div class="maintainer-links">
+              <a href="mailto:bogdan.zelya.s@gmail.com"
+                >bogdan.zelya.s@gmail.com ↗</a
+              ><a href="https://github.com/DrBarga/TraceForge/issues"
+                >Bugs &amp; feature requests ↗</a
+              ><a href="https://www.linkedin.com/in/bohdan-zelenskyi-a291a62b5/"
+                >LinkedIn ↗</a
+              >
+            </div>
           </div>
-        </div>
-        <ol class="steps">
-          <li>
-            <span class="step-number">1</span>
-            <h3>Download &amp; verify</h3>
-            <p>
-              Get the ZIP from GitHub. Compare its SHA-256 with the accompanying
-              checksum file.
-            </p>
-          </li>
-          <li>
-            <span class="step-number">2</span>
-            <h3>Extract &amp; launch</h3>
-            <p>
-              Keep the files together and open TraceForge.App.exe. The bundled
-              native agent starts automatically.
-            </p>
-          </li>
-          <li>
-            <span class="step-number">3</span>
-            <h3>Inspect &amp; watch</h3>
-            <p>
-              Select a process. Inspect it, watch it through exit, or export a
-              report for your investigation.
-            </p>
-          </li>
-        </ol>
-      </section>
-      <section class="section container faq-section">
-        <div>
-          <span class="eyebrow">BEFORE YOU INSTALL</span>
-          <h2>A few practical details.</h2>
-        </div>
-        <div class="faq">
-          <details>
-            <summary>Does it need administrator rights?</summary>
-            <p>
-              Ordinary diagnostics run with your Windows account's existing
-              permissions. Protected or elevated processes may return partial
-              data. TraceForge does not automatically elevate or install a
-              service.
-            </p>
-          </details>
-          <details>
-            <summary>What is inside a report?</summary>
-            <p>
-              The JSON includes the current process inventory, a sampled
-              timeline, anomaly flags, and available incident and inspection
-              data. HTML presents a summary. Reports can include other processes
-              on the machine. Read the
-              <a href="/security">data-handling brief</a> before sharing them.
-            </p>
-          </details>
-          <details>
-            <summary>Is the executable signed?</summary>
-            <p>
-              No. The 1.0.0 portable release is unsigned and has no installer.
-              Windows may show a publisher warning. The supplied SHA-256 checks
-              archive integrity; it does not replace a publisher signature.
-            </p>
-          </details>
-          <details>
-            <summary>Is this a crash debugger?</summary>
-            <p>
-              TraceForge captures process context and observed exits. You can
-              request a MiniDump manually. Automatic crash-time dumps, hang
-              detection, symbol resolution, and Windows Error Reporting
-              correlation are outside the 1.0.0 scope.
-            </p>
-          </details>
-          <details>
-            <summary>Does this website collect analytics?</summary>
-            <p>
-              This site has no analytics scripts, tracking cookies, external
-              fonts, or contact form. Vercel can process normal hosting request
-              logs. GitHub handles download requests, and email is handled by
-              your mail provider.
-            </p>
-          </details>
-        </div>
-      </section>
-      <section class="about-section container" id="about">
-        <div class="author-mark" aria-hidden="true">BZ</div>
-        <div>
-          <span class="eyebrow">BUILT BY BOHDAN ZELYA</span>
-          <h2>A tool I can explain,<br />and you can inspect.</h2>
-          <p>
-            I build TraceForge with C++20 and C# to make local Windows
-            troubleshooting easier. The source, release scope, and data-handling
-            details are public, so you can review how it works before using it.
-          </p>
-          <div class="about-links">
-            <a href="mailto:bogdan.zelya.s@gmail.com"
-              >Contact Bohdan <span aria-hidden="true">↗</span></a
-            ><a href="https://github.com/DrBarga/TraceForge/issues"
-              >Report an issue <span aria-hidden="true">↗</span></a
-            ><a
-              href="https://github.com/DrBarga/TraceForge/blob/master/docs/ARCHITECTURE.md"
-              >Explore the architecture <span aria-hidden="true">↗</span></a
-            >
-          </div>
-        </div>
-      </section>
-      <section class="download-section container">
-        <div>
-          <span class="eyebrow">TRACEFORGE 1.0.0</span>
-          <h2>Start with the evidence.</h2>
-          <p>Portable Windows x64 diagnostics. No account required.</p>
-        </div>
-        <a
-          class="button button-primary"
-          href="https://github.com/DrBarga/TraceForge/releases/download/v1.0.0/TraceForge-1.0.0-win-x64.zip"
-          >Download TraceForge <span aria-hidden="true">↓</span></a
-        >
-      </section>
-    </main>
-    <footer class="footer container">
-      <a class="brand" href="/"
-        ><img src="/favicon.svg" width="24" height="24" alt="" />TraceForge<span
-          class="brand-dot"
-          >.</span
-        ></a
-      ><span>Built by Bohdan Zelya · 2026</span>
+        </section>
+      </main>
+    </div>
+    <footer class="footer">
+      <span>TraceForge / 1.0.0</span><span>Bohdan Zelenskyi · 2026</span>
       <div>
         <a href="/security">Data &amp; security</a
-        ><a href="/downloads/TraceForge-data-handling.pdf">Security brief PDF</a
         ><a href="https://github.com/DrBarga/TraceForge">GitHub</a>
       </div>
     </footer>
