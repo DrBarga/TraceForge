@@ -2,7 +2,7 @@
 
 A static product site with locally served CSS, SVG assets, and a small keyboard-accessible process walkthrough. The walkthrough uses an example dataset and does not collect workstation information. No client framework, package dependencies, analytics, cookies, contact form, or external fonts are used. Hosting providers can retain normal request logs.
 
-Production: **https://traceforge-lovat.vercel.app**. Published to the `traceforge` project in the Vercel account `bogdan.zelya.s@gmail.com` on 1 October 2026. The initial deployment uploaded the built `dist` directory through Vercel's Drop to Deploy flow. It is not connected to automatic deployments from GitHub.
+Production: **https://traceforge-lovat.vercel.app**. Published to the `traceforge` project in the Vercel account `bogdan.zelya.s@gmail.com` on 1 October 2026. The initial deployment used Vercel Drop; subsequent updates use the CLI linked to that same project. It is not connected to automatic deployments from GitHub.
 
 ## Build and preview
 
@@ -29,10 +29,10 @@ For later CLI updates, authenticate to that account, build the site, then link `
 ```powershell
 npm run build
 cd dist
-vercel link
-vercel deploy --prod
+vercel link --project traceforge --scope bogdanzelyas-3297s-projects
+vercel deploy --prod --scope bogdanzelyas-3297s-projects
 ```
 
-Select the existing project when linking; do not create a second project. A future Git import also requires granting the Vercel GitHub integration access to the TraceForge repository.
+Select the existing project when linking; do not create a second project. The CLI may download a `.env.local` authentication file while linking. The site does not use it: keep `.env*` excluded from deployments and remove that generated file before uploading `dist` through a browser. Never commit it. A future Git import also requires granting the Vercel GitHub integration access to the TraceForge repository.
 
 To update the data-handling PDF, run `scripts/build-data-handling-pdf.py` from the repository root with Python and ReportLab. The Markdown document is the source for both formats. Rebuild the site afterwards.
