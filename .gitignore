@@ -16,3 +16,9 @@ AppPackages/
 *.tmp
 .codex-*/
 /artifacts/
+website/dist/
+website/.vercel/
+website/node_modules/
+output/playwright/
+tmp/pdfs/
+.playwright-cli/

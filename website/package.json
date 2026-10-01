@@ -1,0 +1,11 @@
+{
+  "name": "traceforge-website",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node serve.mjs"
+  },
+  "engines": { "node": ">=22" }
+}
